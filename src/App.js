@@ -1,23 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import "./sass/style.css";
+import React, { useState } from "react";
+import Input from "./components/Input";
+import User from "./components/User";
 
 function App() {
+  const [inputValue, setInputValue] = useState("");
+  const [userData, setUserData] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const api = `https://api.github.com/users/${inputValue}`;
+  function getUserData() {
+    fetch(api)
+      .then((res) => res.json())
+      .then((data) => setUserData(data));
+    setIsSearching(true);
+  }
+  function handleChange(e) {
+    const { value } = e.target;
+    setInputValue(value);
+  }
+  function handleKeyDown(e) {
+    if (e.keyCode === 13) {
+      getUserData();
+    } else {
+      return;
+    }
+  }
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Input
+        value={inputValue}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+      />
+      <button onClick={getUserData}> Get User </button>
+      {isSearching ? (
+        userData.message === undefined ? (
+          <User userData={userData} />
+        ) : (
+          <h1> no users found </h1>
+        )
+      ) : (
+        ""
+      )}
     </div>
   );
 }
